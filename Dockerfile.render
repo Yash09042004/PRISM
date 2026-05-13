@@ -20,7 +20,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     HOME=/data
 
 # ── System dependencies ───────────────────────────────────────────────────────
-# Only what is strictly required to build / run the Python packages.
+# nodejs+npm: needed to install frontend JS libs (jquery, bootstrap, etc.)
 # No docker-cli, chromium, or any sandbox tooling.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc \
@@ -29,6 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libxml2-dev \
         libxslt1-dev \
         curl \
+        nodejs \
+        npm \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Working directory ─────────────────────────────────────────────────────────
@@ -46,6 +48,12 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # Copy everything except what is listed in .dockerignore.
 # The sandbox/ directory is excluded via .dockerignore — it is not needed here.
 COPY . .
+
+# ── Frontend JS/CSS dependencies ──────────────────────────────────────────────
+# jQuery, Bootstrap, alertify, tablesorter, sigma are listed in package.json
+# but are excluded from the git repository via .gitignore.
+# Run npm install here to restore them inside the Docker image.
+RUN cd /app/spiderfoot/static && npm install --omit=dev
 
 # ── Persistent data directory ─────────────────────────────────────────────────
 # /data is the Render disk mount point (configured in render.yaml).
