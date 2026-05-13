@@ -76,11 +76,10 @@ docker-compose*.yml
 sandbox/
 sandbox_out/
 
-# Misc
+# Misc — exclude data/document files but NOT static image assets
 *.pdf
 *.csv
 *.xlsx
-*.png
-*.jpg
-*.jpeg
-*.gif
+# NOTE: *.png / *.jpg / *.gif are intentionally NOT excluded here.
+# The spiderfoot/static/img/ directory contains UI assets (icons, loaders)
+# that are required for the web interface to load correctly.
