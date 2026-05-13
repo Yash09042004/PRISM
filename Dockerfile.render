@@ -1,48 +1,68 @@
 # =============================================================================
 # PRISM - OSINT Platform
-# Optimized Dockerfile for Render.com deployment
+# Single Dockerfile for Render.com deployment (NO sandbox / Docker-in-Docker)
+# All core OSINT, graph analysis, risk scoring, and UI features are included.
 # =============================================================================
 
 FROM python:3.11-slim
 
-# Set environment variables
+# ── Environment ───────────────────────────────────────────────────────────────
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # Render injects $PORT at runtime; default to 10000 as fallback
     PORT=10000 \
-    SPIDERFOOT_DATA=/var/lib/prism \
-    SPIDERFOOT_CACHE=/var/lib/prism/cache
+    # Store the SpiderFoot database + passwd on the persistent disk mounted at /data
+    SPIDERFOOT_DATA=/data \
+    SPIDERFOOT_CACHE=/data/cache \
+    # Tell Python where home is so ~/.spiderfoot resolves to /data
+    HOME=/data
 
-# Set working directory
-WORKDIR /app
-
-# Install system dependencies
+# ── System dependencies ───────────────────────────────────────────────────────
+# Only what is strictly required to build / run the Python packages.
+# No docker-cli, chromium, or any sandbox tooling.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libffi-dev \
-    libssl-dev \
-    curl \
+        gcc \
+        libffi-dev \
+        libssl-dev \
+        libxml2-dev \
+        libxslt1-dev \
+        curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for caching
+# ── Working directory ─────────────────────────────────────────────────────────
+WORKDIR /app
+
+# ── Python dependencies ───────────────────────────────────────────────────────
+# Copy requirements first so Docker can cache this layer independently.
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install all declared deps + scipy (needed by graph PageRank algorithm).
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir scipy
 
-# Copy application code
+# ── Application code ──────────────────────────────────────────────────────────
+# Copy everything except what is listed in .dockerignore.
+# The sandbox/ directory is excluded via .dockerignore — it is not needed here.
 COPY . .
 
-# Create data directory with proper permissions
-RUN mkdir -p /var/lib/prism/cache && chmod -R 777 /var/lib/prism
+# ── Persistent data directory ─────────────────────────────────────────────────
+# /data is the Render disk mount point (configured in render.yaml).
+# SpiderFoot stores its SQLite DB + passwd file under $HOME/.spiderfoot
+# which resolves to /data/.spiderfoot because HOME=/data above.
+RUN mkdir -p /data/.spiderfoot /data/cache \
+    && chmod -R 755 /data
 
-# Expose port
+# ── Port ──────────────────────────────────────────────────────────────────────
 EXPOSE 10000
 
-# Increase health check start period to allow module loading
-HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=5 \
-    CMD curl -f http://localhost:10000/ || exit 1
+# ── Health check ──────────────────────────────────────────────────────────────
+# Give the server 90 s to boot (module loading takes a few seconds).
+HEALTHCHECK --interval=30s --timeout=15s --start-period=90s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/ || exit 1
 
-# Start command - bind to 0.0.0.0 for external access
-CMD ["python3", "sf.py", "-l", "0.0.0.0:10000"]
+# ── Entrypoint ────────────────────────────────────────────────────────────────
+# Use a small shell wrapper so that the $PORT env var injected by Render at
+# runtime is expanded correctly (CMD exec-form does not expand shell vars).
+CMD ["sh", "-c", "python3 sf.py -l 0.0.0.0:${PORT}"]

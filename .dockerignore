@@ -72,6 +72,10 @@ Dockerfile.*
 docker-compose*.yml
 .dockerignore
 
+# Sandbox (Docker-in-Docker — not supported on Render)
+sandbox/
+sandbox_out/
+
 # Misc
 *.pdf
 *.csv
