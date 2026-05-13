@@ -72,10 +72,6 @@ Dockerfile.*
 docker-compose*.yml
 .dockerignore
 
-# Sandbox output artifacts (runtime-generated, should not be in image)
-sandbox_out/
-sandbox/out/
-
 # Misc
 *.pdf
 *.csv

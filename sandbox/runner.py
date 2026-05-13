@@ -66,9 +66,7 @@ def main():
         url = 'https://' + url
 
     max_pages = 20  # Maximum pages to screenshot
-    # OUTPUT_DIR env var allows native mode (no Docker) to redirect output.
-    # In Docker mode the container mounts a host dir to /out (the default).
-    output_dir = os.environ.get("OUTPUT_DIR", "/out")
+    output_dir = "/out"
     hard_timeout = 150  # seconds — well under Docker's 180s limit
 
     print(f"Starting multi-page analysis of {url}...")

@@ -1,0 +1,126 @@
+{
+  "total_screenshots": 20,
+  "base_url": "https://github.com/",
+  "screenshots": [
+    {
+      "number": 1,
+      "url": "https://github.com/",
+      "filename": "screenshot_1_homepage.png",
+      "type": "homepage"
+    },
+    {
+      "number": 2,
+      "url": "https://github.com/login",
+      "filename": "screenshot_2_login.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 3,
+      "url": "https://github.com/features/copilot",
+      "filename": "screenshot_3_features_copilot.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 4,
+      "url": "https://github.com/features/spark",
+      "filename": "screenshot_4_features_spark.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 5,
+      "url": "https://github.com/features/models",
+      "filename": "screenshot_5_features_models.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 6,
+      "url": "https://github.com/mcp",
+      "filename": "screenshot_6_mcp.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 7,
+      "url": "https://github.com/features/actions",
+      "filename": "screenshot_7_features_actions.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 8,
+      "url": "https://github.com/features/codespaces",
+      "filename": "screenshot_8_features_codespaces.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 9,
+      "url": "https://github.com/features/issues",
+      "filename": "screenshot_9_features_issues.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 10,
+      "url": "https://github.com/features/code-review",
+      "filename": "screenshot_10_features_code-review.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 11,
+      "url": "https://github.com/security/advanced-security",
+      "filename": "screenshot_11_security_advanced-security.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 12,
+      "url": "https://github.com/security/advanced-security/code-security",
+      "filename": "screenshot_12_security_advanced-security_code-security.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 13,
+      "url": "https://github.com/security/advanced-security/secret-protection",
+      "filename": "screenshot_13_security_advanced-security_secret-protection.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 14,
+      "url": "https://github.com/why-github",
+      "filename": "screenshot_14_why-github.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 15,
+      "url": "https://github.com/marketplace",
+      "filename": "screenshot_15_marketplace.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 16,
+      "url": "https://github.com/features",
+      "filename": "screenshot_16_features.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 17,
+      "url": "https://github.com/enterprise",
+      "filename": "screenshot_17_enterprise.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 18,
+      "url": "https://github.com/team",
+      "filename": "screenshot_18_team.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 19,
+      "url": "https://github.com/enterprise/startups",
+      "filename": "screenshot_19_enterprise_startups.png",
+      "type": "internal_page"
+    },
+    {
+      "number": 20,
+      "url": "https://github.com/solutions/industry/nonprofits",
+      "filename": "screenshot_20_solutions_industry_nonprofits.png",
+      "type": "internal_page"
+    }
+  ]
+}

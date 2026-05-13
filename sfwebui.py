@@ -104,8 +104,7 @@ class SpiderFootWebUi:
             secure.ContentSecurityPolicy()
             .default_src("'self'")
             .script_src("'self'", "'unsafe-inline'", "blob:")
-            .style_src("'self'", "'unsafe-inline'", "https://fonts.googleapis.com")
-            .font_src("'self'", "https://fonts.gstatic.com")
+            .style_src("'self'", "'unsafe-inline'")
             .base_uri("'self'")
             .connect_src("'self'", "data:")
             .frame_src("'self'", 'data:')
@@ -119,14 +118,9 @@ class SpiderFootWebUi:
             referrer=secure.ReferrerPolicy().no_referrer(),
         )
 
-        # Convert secure headers to list of tuples for CherryPy
-        headers_list = []
-        for header_name, header_value in secure_headers.headers.items():
-            headers_list.append((header_name, header_value))
-
         cherrypy.config.update({
             "tools.response_headers.on": True,
-            "tools.response_headers.headers": headers_list
+            "tools.response_headers.headers": secure_headers.framework.cherrypy()
         })
 
     def error_page(self: 'SpiderFootWebUi') -> None:
@@ -1928,44 +1922,21 @@ class SpiderFootWebUi:
         output_dir = os.path.abspath(os.path.join(os.getcwd(), "sandbox_out", scan_id))
         os.makedirs(output_dir, exist_ok=True)
 
-        # ---------------------------------------------------------------
-        # Build the command based on SANDBOX_MODE environment variable:
-        #
-        #   SANDBOX_MODE=native  → run runner.py directly in this process
-        #                          (used on Render where Docker-in-Docker is
-        #                           not available; Chromium is installed in
-        #                           the same container via Dockerfile.render)
-        #
-        #   (default / unset)    → use `sudo docker run spiderfoot-sandbox`
-        #                          (original behaviour for local development)
-        # ---------------------------------------------------------------
-        sandbox_mode = os.environ.get("SANDBOX_MODE", "docker").strip().lower()
-
-        if sandbox_mode == "native":
-            # Native mode: call runner.py directly as a subprocess.
-            # runner.py reads /out as output dir; we override via OUTPUT_DIR env.
-            runner_path = os.environ.get("SANDBOX_RUNNER_PATH", "/app/sandbox/runner.py")
-            env = os.environ.copy()
-            # Override the hard-coded /out path inside runner.py via env var
-            # runner.py uses output_dir = os.environ.get("OUTPUT_DIR", "/out")
-            env["OUTPUT_DIR"] = output_dir
-            cmd = ["python3", runner_path, url]
-        else:
-            # Docker mode (default for local dev): spawn the sandbox container
-            cmd = [
-                "sudo", "docker", "run", "--rm",
-                "-v", f"{output_dir}:/out",
-                "spiderfoot-sandbox",
-                url
-            ]
-            env = None  # inherit current environment
-
+        # Docker command
+        # Mount the output_dir to /out
+        # WARNING: This assumes the user has 'docker' in path and permissions
+        cmd = [
+            "docker", "run", "--rm",
+            "-v", f"{output_dir}:/out",
+            "spiderfoot-sandbox",
+            url
+        ]
 
         runner_log_file = os.path.join(output_dir, "runner.log")
         runner_output = ""
         try:
             # 200s timeout — runner.py has a 150s internal hard limit so it always exits cleanly first
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=200, env=env)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=200)
             runner_output = result.stdout
             if result.stderr:
                 runner_output += "\n[STDERR]\n" + result.stderr
